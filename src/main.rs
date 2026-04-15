@@ -1,5 +1,6 @@
 use clap::{Parser, Subcommand};
 use directories::ProjectDirs;
+use duct::cmd;
 use inquire::Select;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
@@ -130,15 +131,70 @@ fn preset(id: Option<usize>, config: Config) {
     }
 }
 
+struct CommandOption<'a> {
+    id: &'a usize,
+    cmd: &'a String,
+}
+impl<'a> fmt::Display for CommandOption<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}: {}", self.id, self.cmd)
+    }
+}
+
+fn run(id: Option<usize>, config: Config) {
+    let preset = &State::load().preset;
+    let final_id = if let Some(id) = id {
+        id
+    } else {
+        let options: Vec<CommandOption> = config
+            .presets
+            .get(preset)
+            .map(|p| {
+                p.values
+                    .iter()
+                    .map(|(id, cmd)| CommandOption { id, cmd })
+                    .collect()
+            })
+            .unwrap_or_else(|| {
+                eprintln!("Error: Failed to read commands for preset");
+                process::exit(1)
+            });
+
+        match Select::new("Pick command to run:", options).prompt() {
+            Ok(id) => *id.id,
+            Err(e) => {
+                eprintln!("Error: Failed to prompt for config: {}", e);
+                process::exit(1);
+            }
+        }
+    };
+    if let Some(command) = config
+        .presets
+        .get(preset)
+        .and_then(|p| p.values.get(&final_id))
+    {
+        let (shell, flag) = if cfg!(target_os = "windows") {
+            ("cmd", "/C")
+        } else {
+            ("sh", "-c")
+        };
+
+        if let Err(e) = cmd!(shell, flag, command).run() {
+            eprintln!("Error: Failed to execute command: {}", e);
+            process::exit(1);
+        }
+    } else {
+        eprintln!("Error: Could not find command in preset");
+        process::exit(1);
+    }
+}
+
 fn main() {
     let cli = Cli::parse();
     let config = Config::load();
 
     match &cli.command {
         Commands::Preset { id } => preset(*id, config),
-        Commands::Run { id } => match id {
-            Some(_id) => todo!("Run preset command with provided id"),
-            None => todo!("Interactive prompt for preset command"),
-        },
+        Commands::Run { id } => run(*id, config),
     }
 }
