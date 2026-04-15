@@ -1,9 +1,10 @@
 use clap::{Parser, Subcommand};
 use directories::ProjectDirs;
+use inquire::Select;
 use serde::{Deserialize, Serialize};
 use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
-use std::{fs, process};
+use std::{fmt, fs, process};
 use toml;
 
 #[derive(Parser)]
@@ -81,14 +82,60 @@ impl Config {
     }
 }
 
+struct PresetOption<'a> {
+    id: &'a usize,
+    name: &'a String,
+}
+impl<'a> fmt::Display for PresetOption<'a> {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
+
+fn preset(id: Option<usize>, config: Config) {
+    match id {
+        Some(id) => {
+            if !config.presets.contains_key(&id) {
+                eprintln!("Error: Provided preset doesn't exist");
+                process::exit(1);
+            }
+            State::save(&State { preset: id }).unwrap_or_else(|e| {
+                eprintln!("Error: Failed to save state: {}", e);
+                process::exit(1);
+            })
+        }
+        None => {
+            let presets: Vec<PresetOption> = config
+                .presets
+                .iter()
+                .map(|(id, p)| PresetOption { id, name: &p.name })
+                .collect();
+
+            if presets.is_empty() {
+                eprintln!("Error: No presets defined in config");
+                process::exit(1);
+            }
+
+            match Select::new("Choose preset:", presets).prompt() {
+                Ok(choice) => State::save(&State { preset: *choice.id }).unwrap_or_else(|e| {
+                    eprintln!("Error: Failed to save state: {}", e);
+                    process::exit(1)
+                }),
+                Err(e) => {
+                    eprintln!("Error: Failed to prompt for config: {}", e);
+                    process::exit(1);
+                }
+            }
+        }
+    }
+}
+
 fn main() {
     let cli = Cli::parse();
+    let config = Config::load();
 
     match &cli.command {
-        Commands::Preset { id } => match id {
-            Some(_id) => todo!("Choose the provided preset"),
-            None => todo!("Interactive prompt for preset"),
-        },
+        Commands::Preset { id } => preset(*id, config),
         Commands::Run { id } => match id {
             Some(_id) => todo!("Run preset command with provided id"),
             None => todo!("Interactive prompt for preset command"),
