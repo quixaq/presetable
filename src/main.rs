@@ -1,8 +1,9 @@
 use clap::{Parser, Subcommand};
 use directories::ProjectDirs;
 use serde::{Deserialize, Serialize};
-use std::fs;
+use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
+use std::{fs, process};
 use toml;
 
 #[derive(Parser)]
@@ -44,6 +45,39 @@ impl State {
         }
         let serialized = toml::to_string(self).expect("Failed to serialize state");
         fs::write(path, serialized)
+    }
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct Preset {
+    pub name: String,
+    pub values: BTreeMap<usize, String>,
+}
+
+#[derive(Serialize, Deserialize, Debug, Default)]
+pub struct Config {
+    pub presets: HashMap<String, Preset>,
+}
+
+impl Config {
+    pub fn load() -> Self {
+        let project_dirs = ProjectDirs::from("com", "quixaq", "presetable")
+            .expect("Could not find valid home directory");
+        let path = project_dirs.config_dir().join("config.toml");
+        if !path.exists() {
+            eprintln!("Error: Config not found at {:?}", path);
+            process::exit(1);
+        }
+
+        let content = fs::read_to_string(&path).unwrap_or_else(|e| {
+            eprintln!("Error: Could not read config: {}", e);
+            process::exit(1);
+        });
+
+        toml::from_str(&content).unwrap_or_else(|e| {
+            eprintln!("Error: Malformed config file: {}", e);
+            process::exit(1);
+        })
     }
 }
 

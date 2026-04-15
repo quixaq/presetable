@@ -1,0 +1,5 @@
+[presets.1]
+name = "preset-1"
+[presets.1.values]
+1 = "ls"
+2 = "cat /etc/os-release"
