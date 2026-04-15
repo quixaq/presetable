@@ -14,6 +14,7 @@ struct Cli {
 #[derive(Subcommand)]
 enum Commands {
     Preset { id: Option<usize> },
+    Run { id: Option<usize> },
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
@@ -53,6 +54,10 @@ fn main() {
         Commands::Preset { id } => match id {
             Some(_id) => todo!("Choose the provided preset"),
             None => todo!("Interactive prompt for preset"),
+        },
+        Commands::Run { id } => match id {
+            Some(_id) => todo!("Run preset command with provided id"),
+            None => todo!("Interactive prompt for preset command"),
         },
     }
 }
