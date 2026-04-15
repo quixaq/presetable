@@ -56,7 +56,7 @@ pub struct Preset {
 
 #[derive(Serialize, Deserialize, Debug, Default)]
 pub struct Config {
-    pub presets: HashMap<String, Preset>,
+    pub presets: HashMap<usize, Preset>,
 }
 
 impl Config {
