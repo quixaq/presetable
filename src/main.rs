@@ -1,5 +1,5 @@
 /*
- *     presetable v0.1.1
+ *     presetable v0.1.2
  * Copyright (C) 2026  Quixaq
  *
  * This program is free software: you can redistribute it and/or modify
@@ -25,6 +25,10 @@ use std::collections::{BTreeMap, HashMap};
 use std::path::PathBuf;
 use std::{fmt, fs, process};
 use toml;
+
+const QUALIFIER: &'static str = "com";
+const ORG: &'static str = "quixaq";
+const APP: &'static str = "presetable";
 
 #[derive(Parser)]
 #[command(name = "presetable", about = "A tool for command alias presets")]
@@ -54,8 +58,8 @@ pub struct State {
 
 impl State {
     fn get_path() -> PathBuf {
-        let project_dirs = ProjectDirs::from("com", "quixaq", "presetable")
-            .expect("Could not find valid home directory");
+        let project_dirs =
+            ProjectDirs::from(QUALIFIER, ORG, APP).expect("Could not find valid home directory");
         project_dirs.data_dir().join("state.toml")
     }
 
@@ -90,8 +94,8 @@ pub struct Config {
 
 impl Config {
     pub fn load() -> Self {
-        let project_dirs = ProjectDirs::from("com", "quixaq", "presetable")
-            .expect("Could not find valid home directory");
+        let project_dirs =
+            ProjectDirs::from(QUALIFIER, ORG, APP).expect("Could not find valid home directory");
         let path = project_dirs.config_dir().join("config.toml");
         if !path.exists() {
             eprintln!("Error: Config not found at {:?}", path);
