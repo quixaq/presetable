@@ -1,6 +1,22 @@
 # presetable
 A tool for command alias presets
 
+## Usage
+```bash
+> presetable help
+A tool for command alias presets
+
+Usage: presetable <COMMAND>
+
+Commands:
+  preset  Change the active preset
+  run     Run a command from the preset
+  help    Print this message or the help of the given subcommand(s)
+
+Options:
+  -h, --help  Print help
+```
+
 ## Installation
 ### cargo
 ```bash
