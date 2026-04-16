@@ -1,6 +1,13 @@
 [package]
 name = "presetable"
 version = "0.1.0"
+authors = ["Quixaq <quixaq@tutamail.com>"]
+description = "A tool for command alias presets"
+repository = "https://github.com/quixaq/presetable"
+license = "GPL-3.0-or-later"
+keywords = ["cli", "presets", "runner", "alias", "automation"]
+categories = ["command-line-utilities"]
+readme = "README.md"
 edition = "2024"
 
 [dependencies]
