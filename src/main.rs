@@ -9,6 +9,7 @@ use std::{fmt, fs, process};
 use toml;
 
 #[derive(Parser)]
+#[command(name = "presetable", about = "A tool for command alias presets")]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
@@ -16,8 +17,16 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Commands {
-    Preset { id: Option<usize> },
-    Run { id: Option<usize> },
+    /// Change the active preset
+    Preset {
+        /// The preset you want to choose. If not provided, an interactive picker will open.
+        id: Option<usize>,
+    },
+    /// Run a command from the preset
+    Run {
+        /// The command you want to run. If not provided, an interactive picker will open.
+        id: Option<usize>,
+    },
 }
 
 #[derive(Serialize, Deserialize, Debug, Default)]
