@@ -18,10 +18,6 @@ Options:
 ```
 
 ## Installation
-### cargo
-```bash
-cargo install presetable
-```
 ### Manual build
 ```bash
 cargo build --release
@@ -30,7 +26,7 @@ cargo build --release
 ### NixOS
 Add presetable to your nix flake inputs:
 ```nix
-inputs.presetable.url = "github:quixaq/presetable";
+inputs.presetable.url = "git+https://codeberg.org/quixaq/presetable";
 ```
 Include the package in your config:
 ```nix
