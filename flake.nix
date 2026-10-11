@@ -25,6 +25,10 @@
         };
       in
       {
+        checks.${system} = {
+          inherit presetable;
+        };
+
         packages.default = presetable;
 
         devShells.default = craneLib.devShell {
