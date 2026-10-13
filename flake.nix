@@ -25,7 +25,7 @@
         };
       in
       {
-        checks.${system} = {
+        checks = {
           inherit presetable;
         };
 
